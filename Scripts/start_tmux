@@ -1,0 +1,4 @@
+#!/bin/bash  
+  
+tmux -S /tmp/tmux-shared/shared new-session -s shared  
+tmux -S /tmp/tmux-shared/shared attach-session -t shared

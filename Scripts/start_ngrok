@@ -1,0 +1,8 @@
+#!/bin/bash  
+  
+tmux new-session -d -s ngrok -c ~  
+tmux send-keys -t ngrok "ngrok tcp 2222" Enter  
+  
+sleep 1  
+  
+tmux capture-pane -t ngrok -p | grep "Forwarding"

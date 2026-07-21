@@ -1,0 +1,9 @@
+#!/bin/bash  
+  
+tmux new-session -d -s webapp -c ~  
+tmux send-keys -t webapp "/home/thomas/WebApp-AIS/venv/bin/python /home/thomas/WebApp-AIS/app.py" Enter  
+  
+tmux new-session -d -s webapp_ngrok -c ~  
+tmux send-keys -t webapp_ngrok "ngrok http 5000" Enter  
+sleep 1  
+tmux capture-pane -t webapp_ngrok -p | grep "Forwarding"
