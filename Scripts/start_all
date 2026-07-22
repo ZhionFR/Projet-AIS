@@ -1,0 +1,19 @@
+#!/bin/bash  
+  
+tmux new-session -d -s process -c ~  
+tmux send-keys -t process "ngrok tcp 2222" Enter  
+  
+sleep 1  
+  
+tmux capture-pane -t process -p | grep "Forwarding"
+
+
+tmux new-window -t process -c ~  
+tmux send-keys -t process:1 "/home/thomas/WebApp-AIS/venv/bin/python /home/thomas/WebApp-AIS/app.py" Enter  
+  
+tmux new-window -t process -c ~  
+tmux send-keys -t process:2 "ngrok http 5000" Enter  
+
+sleep 1  
+
+tmux capture-pane -t process:2 -p | grep "Forwarding"

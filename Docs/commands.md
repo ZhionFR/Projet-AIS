@@ -57,6 +57,12 @@ Contexte :
     - Déplacer un fichier
     - Recommer un fichier (déplacement vers un autre nom mais même chemin)
 
+### cp
+
+#### cp /path/to/source /path/to/destination
+Contexte :
+    - Copier un fichier
+
 
 ## SSH/Accès distant
 
