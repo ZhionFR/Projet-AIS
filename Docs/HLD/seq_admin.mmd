@@ -1,0 +1,29 @@
+sequenceDiagram
+    autonumber
+    actor Adm as Administrateur système
+    participant FW as Pare-feu PfSense (périmètre)
+    participant BAST as Bastion (rebond, journalisation des sessions)
+    participant SRV as Serveur cible (SRV-1 ou SRV-2)
+
+    Adm->>FW: ssh -p 2222 admin@bastion (depuis le réseau d'administration)
+    FW->>BAST: règle autorisée (2222/tcp, source = réseau admin uniquement)
+    BAST->>BAST: authentification par clé publique + journalisation de session
+    alt clé autorisée
+        BAST-->>Adm: shell ouvert sur le bastion
+    else clé refusée / source non autorisée
+        BAST-->>Adm: connexion rejetée
+    end
+
+    Adm->>SRV: second saut ssh -p 2222 depuis le bastion (rebond interne)
+    SRV->>SRV: iptables local : n'accepte 2222/tcp que depuis l'IP du bastion
+    SRV-->>Adm: shell ouvert sur le serveur cible
+
+    Adm->>SRV: consultation des journaux (ex. journalctl, logs applicatifs)
+    SRV-->>Adm: extraits de logs renvoyés
+    Adm->>SRV: vérification de l'état des services (ex. systemctl status)
+    SRV-->>Adm: état des services renvoyé
+    Adm->>SRV: action corrective si nécessaire (redémarrage de service, etc.)
+    SRV-->>Adm: confirmation de l'action
+
+    Adm->>BAST: fin de session, retour au bastion
+    Adm->>FW: déconnexion
