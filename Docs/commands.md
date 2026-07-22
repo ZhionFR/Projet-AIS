@@ -186,3 +186,28 @@ Contexte :
     - Lister les cartes réseau et leurs specs
 
 
+### iptables
+
+#### iptables -t nat -L -n -V
+Contexte :
+    - Afficher les règles de la table NAT
+
+#### iptables -t nat -I PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 5000
+Contexte :
+    - Rediriger les requêtes arrivant du port 80 en tcp vers le port 5000
+
+#### iptables -A INPUT -p tcp --dport 5000 -m conntrack --ctstate NEW -j ACCEPT
+Contexte :
+    - Accepter les requêtes de nouvelles adresses sur le port 5000
+
+#### iptables -P INPUT DROP
+Contexte :
+    - Changer la policy de INPUT en DROP (regle par défaut)
+
+
+### iptables-save
+
+#### iptables-save > /root/iptables_backup_1784714471.rules
+Contexte :
+    - Sauvegarder les règles iptables au cas où je casse un truc
+    - Sauvegarder dans `/etc/iptables/rules.v4` pour persistance au reboot
