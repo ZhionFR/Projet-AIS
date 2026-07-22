@@ -1,0 +1,58 @@
+flowchart TB
+
+    INTERNET(("Internet"))
+    ADMIN_NET["Reseau d'administration<br/>(poste admin distant)"]
+
+    subgraph FWZ["Pare-feu perimetrique PfSense (multi-interfaces, routeur inter-segments)"]
+        direction TB
+        WAN["Interface WAN"]
+        LANDMZ["Interface DMZ"]
+        LANMGMT["Interface Management"]
+        LANDATA["Interface Donnees"]
+        LANSIEM["Interface Supervision"]
+    end
+
+    subgraph DMZSEG["Segment DMZ"]
+        direction TB
+        SRV1["SRV-1 - Serveur applicatif<br/>lechatdethomas.local : 80/tcp -> redirige vers 5000<br/>iptables local : n'accepte 80 que du pare-feu,<br/>2222 que du bastion"]
+    end
+
+    subgraph MGMTSEG["Segment Management"]
+        direction TB
+        BASTION["Bastion : 2222/tcp<br/>seul point d'entree pour l'administration,<br/>sessions journalisees"]
+    end
+
+    subgraph DATASEG["Segment interne / donnees"]
+        direction TB
+        SRV2["SRV-2 - Serveur de base de donnees<br/>PostgreSQL : 5432/tcp<br/>iptables local : n'accepte 5432 que du pare-feu (source SRV-1),<br/>2222 que du bastion"]
+    end
+
+    subgraph SIEMSEG["Segment Supervision"]
+        direction TB
+        SIEM["SIEM : centralise les journaux<br/>de SRV-1, SRV-2, Bastion et PfSense<br/>flux de journalisation en entree uniquement"]
+    end
+
+    INTERNET -->|HTTP 80| WAN
+    ADMIN_NET -->|SSH 2222| WAN
+    WAN --- LANDMZ
+    WAN --- LANMGMT
+    WAN --- LANDATA
+    WAN --- LANSIEM
+    LANDMZ --- SRV1
+    LANMGMT --- BASTION
+    LANDATA --- SRV2
+    LANSIEM --- SIEM
+
+    SRV1 -.->|requete SQL - relayee par le pare-feu, aucun lien direct| SRV2
+    BASTION -.->|rebond ssh admin - relaye par le pare-feu| SRV1
+    BASTION -.->|rebond ssh admin - relaye par le pare-feu| SRV2
+    SRV1 -.->|logs, relayes par le pare-feu| SIEM
+    SRV2 -.->|logs, relayes par le pare-feu| SIEM
+    BASTION -.->|logs, relayes par le pare-feu| SIEM
+    FWZ -.->|logs locaux| SIEM
+
+    style DMZSEG fill:#eafaf1,stroke:#27ae60
+    style MGMTSEG fill:#eaf2fb,stroke:#2980b9
+    style DATASEG fill:#f5eefb,stroke:#8e44ad
+    style FWZ fill:#fdf3e7,stroke:#e67e22
+    style SIEMSEG fill:#eeeef8,stroke:#5b5ba6

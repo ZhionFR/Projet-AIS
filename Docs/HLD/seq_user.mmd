@@ -1,0 +1,20 @@
+sequenceDiagram
+    autonumber
+    actor U as Utilisateur (navigateur)
+    participant SRV1 as SRV-1 - Serveur applicatif (Flask, port 5000)
+    participant SRV2 as SRV-2 - Serveur de base de données (PostgreSQL)
+
+    U->>SRV1: GET http://lechatdethomas.local/
+    SRV1->>SRV2: SELECT messages ORDER BY date_post DESC
+    SRV2-->>SRV1: liste des messages
+    SRV1-->>U: page HTML (index.html rendu)
+
+    U->>SRV1: POST /poster (pseudo, contenu)
+    SRV1->>SRV1: validation (pseudo et contenu non vides)
+    alt champs valides
+        SRV1->>SRV2: INSERT INTO message (pseudo, contenu, date_post)
+        SRV2-->>SRV1: OK
+    else champ(s) manquant(s)
+        SRV1->>SRV1: aucune écriture
+    end
+    SRV1-->>U: redirect 302 vers /
