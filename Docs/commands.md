@@ -23,7 +23,7 @@ Contexte :
 
 #### systemctl restart
 Contexte :
-    - Relancer le démon "networking" lors de la tentative de bridge sur le wifi host
+    - Relancer le démon "networking" lors de maj de la config réseau d'une VM ou de l'host
 
 
 ### touch
@@ -62,6 +62,15 @@ Contexte :
 #### cp /path/to/source /path/to/destination
 Contexte :
     - Copier un fichier
+
+
+### ls
+
+#### ls -lA
+Contexte :
+    - Lister les repertoires et fichier présent dans le wd
+
+
 
 
 ## SSH/Accès distant
@@ -169,6 +178,19 @@ Contexte :
 #### ip link set
 Contexte : 
     - Tentative de bridge de l'interface de la VM sur le wifi du host
+    - Activer une interface avec `ip link set enp7s0 up`
+
+#### ip a
+Contexte :
+    - Lister en détail les interfaces disponibles (meme down)
+
+#### ip a show <interface>
+Contexte ;
+    - Comme ip a mais seulement sur une interface
+
+#### ip addr add 192.168.20.1/24 dev enp7s0
+Contexte :
+    - Auto-attribution d'une adresse ip sur l'interface enp7s0
 
 
 ### nmcli
@@ -211,3 +233,16 @@ Contexte :
 Contexte :
     - Sauvegarder les règles iptables au cas où je casse un truc
     - Sauvegarder dans `/etc/iptables/rules.v4` pour persistance au reboot
+
+
+### virsh
+
+#### sudo virsh list --all
+Contexte :
+    - lister les machines virtuelles connectées a des interfaces (sudo sinon vide)
+
+#### sudo virsh domiflist SRV-1
+Contexte :
+    - lister les interfaces virtuelles sur la VM (sudo sinon vide)
+
+
