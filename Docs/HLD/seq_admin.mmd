@@ -3,7 +3,7 @@ sequenceDiagram
     actor Adm as Administrateur système
     participant FW as Pare-feu PfSense (périmètre)
     participant BAST as Bastion (rebond, journalisation des sessions)
-    participant SRV as Serveur cible (SRV-1 ou SRV-2)
+    participant SRV as Serveur cible (SRV-1, SRV-2 ou Backup)
 
     Adm->>FW: ssh -p 2222 admin@bastion (depuis le réseau d'administration)
     FW->>BAST: règle autorisée (2222/tcp, source = réseau admin uniquement)

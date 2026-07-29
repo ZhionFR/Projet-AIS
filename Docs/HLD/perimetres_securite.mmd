@@ -13,7 +13,7 @@ flowchart TB
 
     subgraph Z2["Zone 2 - DMZ (serveur applicatif)"]
         direction TB
-        IPT1["iptables local SRV-1<br/>n'accepte 80/tcp (redirige vers 5000) que depuis le pare-feu<br/>n'accepte 2222/tcp que depuis le bastion"]
+        IPT1["iptables local SRV-1<br/>n'accepte 80/tcp (redirige vers 5000) que depuis le pare-feu<br/>n'accepte 2222/tcp que depuis le bastion ou depuis Backup"]
         SRV1["SRV-1 : application web (redirection 80 vers 5000)"]
     end
 
@@ -24,13 +24,18 @@ flowchart TB
 
     subgraph Z4["Zone 4 - Interne / donnees"]
         direction TB
-        IPT2["iptables local SRV-2<br/>n'accepte 5432/tcp que depuis le pare-feu (source SRV-1 uniquement)<br/>n'accepte 2222/tcp que depuis le bastion"]
+        IPT2["iptables local SRV-2<br/>n'accepte 5432/tcp que depuis le pare-feu (source SRV-1 uniquement)<br/>n'accepte 2222/tcp que depuis le bastion ou depuis Backup"]
         SRV2["SRV-2 : base de donnees PostgreSQL"]
     end
 
     subgraph Z5["Zone 5 - Supervision (SIEM)"]
         direction TB
-        SIEM["SIEM : collecte les journaux de<br/>SRV-1, SRV-2, Bastion et PfSense<br/>flux de journalisation unidirectionnel"]
+        SIEM["SIEM : collecte les journaux de<br/>SRV-1, SRV-2, Bastion, Backup et PfSense<br/>flux de journalisation unidirectionnel"]
+    end
+
+    subgraph Z6["Zone 6 - Sauvegarde (Backup)"]
+        direction TB
+        BACKUP["Backup : serveur BORG<br/>connecte uniquement au pare-feu<br/>sauvegarde SRV-1 et SRV-2 (mode pull, SSH restreint)<br/>administre via le bastion"]
     end
 
     U -->|HTTP port 80| FW
@@ -49,6 +54,12 @@ flowchart TB
     SRV1 -.->|journalisation| SIEM
     SRV2 -.->|journalisation| SIEM
     BAST -.->|journalisation| SIEM
+    BACKUP -.->|journalisation| SIEM
+
+    FW -->|rebond ssh admin vers Backup| BACKUP
+    BACKUP -->|ssh restreint borg serve, relai oblige| FW
+    FW -->|ACL 2222/tcp uniquement, sauvegarde SRV-1| IPT1
+    FW -->|ACL 2222/tcp uniquement, sauvegarde SRV-2| IPT2
 
     style Z0 fill:#3a1a1a,stroke:#c0392b,color:#fff
     style Z1 fill:#3a2a10,stroke:#e67e22,color:#fff
@@ -56,3 +67,4 @@ flowchart TB
     style Z3 fill:#1a2a3a,stroke:#2980b9,color:#fff
     style Z4 fill:#2a1a30,stroke:#8e44ad,color:#fff
     style Z5 fill:#1a1a2a,stroke:#5b5ba6,color:#fff
+    style Z6 fill:#2a2410,stroke:#b8860b,color:#fff

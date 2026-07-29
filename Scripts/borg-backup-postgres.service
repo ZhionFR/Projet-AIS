@@ -1,0 +1,13 @@
+[Unit]
+Description=Backup PostgreSQL via Borg (SRV-2 -> SRV-Backup)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/borg-backup-postgres.sh
+# Durcissement basique
+ProtectSystem=strict
+ReadWritePaths=/tmp /mnt/backups /var/log
+PrivateTmp=false
+NoNewPrivileges=true
