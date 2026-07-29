@@ -1,0 +1,19 @@
+# /etc/systemd/system/start-all.service
+[Unit]
+Description=Sessions tmux : appli web + tunnels ngrok
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+KillMode=none
+User=thomas
+Group=thomas
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+ExecStart=/home/thomas/bin/start_all.sh
+ExecStop=/bin/bash -c 'tmux kill-session -t process 2>/dev/null; true'
+
+[Install]
+WantedBy=multi-user.target
